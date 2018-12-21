@@ -1,0 +1,23 @@
+<launch>
+
+	<node name="JI_armr" pkg="silva_beta" type="joint_interface.py" args="armr" />
+
+	<node name="JI_neck" pkg="silva_beta" type="joint_interface.py" args="neck"/>
+
+	<node name="JI_arml" pkg="silva_beta" type="joint_interface.py" args="arml"/>
+
+	<node name="JI_headl" pkg="silva_beta" type="joint_interface.py" args="headl"/>
+
+	<node name="JI_headc" pkg="silva_beta" type="joint_interface.py" args="headc"/>
+
+	<node name="JI_headr" pkg="silva_beta" type="joint_interface.py" args="headr"/>
+
+	<node name="JI_handl" pkg="silva_beta" type="joint_interface.py" args="handl"/>
+
+	<node name="JI_handr" pkg="silva_beta" type="joint_interface.py" args="handr"/>
+
+	<node name="JI_hip" pkg="silva_beta" type="joint_interface.py" args="hip"/>
+
+	<node name="AJI_wheel" pkg="silva_beta" type="joint_interface.py" args="wheel"/>
+
+</launch>
