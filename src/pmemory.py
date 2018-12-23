@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Nov 15 15:59:58 2018
-virtual pose memory of motion
-and fusion program
+Motion Fusion Core
+# This program fuses motion of 5 main cores,
+# and send /fusion message to joint interfaces.
+# It also occasionally sends default position in 2 Hz,
+# which is read from .map file from /defaults.
 @author: ustyui
 """
 

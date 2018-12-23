@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Nov 13 11:19:56 2018
-joint interface
-subscribe message name: /joint_position
+# joint interface
+# subscribe message name: /fusion,
+# devide it according to different device names.
 @author: ustyui
 """
 
