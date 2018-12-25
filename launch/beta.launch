@@ -20,4 +20,5 @@
 
 	<node name="AJI_wheel" pkg="silva_beta" type="joint_interface.py" args="wheel"/>
 
+	<node name="IRSA_FUSION" pkg="silva_beta" type="pmemory.py" args="catkin"/>
 </launch>
