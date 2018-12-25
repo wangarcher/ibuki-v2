@@ -13,12 +13,12 @@ Motion Fusion Core
 import rospy
 from silva_beta.msg import Evans
 
-import os, threading
+import sys, threading, getpass
 
 ### environment variables ###
 
 _RATE = 20  # ros rate
-
+dev_name = sys.argv [1] # ibuki or catkin
 
 
 ### pose memory ###
@@ -73,7 +73,8 @@ class pose():
     def load_default(self, _which = 'ibuki'):
         
         # open the .map
-        mappath = os.path.abspath('defaults/'+_which+'.map')
+        username = getpass.getuser()
+        mappath = ('/home/' + username+'/'+ self._name + '_ws/src/silva_beta/src/defaults/'+_which+'.map')
         f = open(mappath)
         lines = f.readlines()
         f.close()
@@ -207,7 +208,7 @@ class pose():
 if __name__ == "__main__":
     
     # pose class
-    Fpose = pose('ibuki')
+    Fpose = pose(dev_name)
     
     # init nodes
     nh = rospy.init_node("IRSA_fusion")  
