@@ -69,7 +69,12 @@ class pose():
         self.sub_auto = rospy.Subscriber('/silva/balance', Evans, self.joint_balance_cb)        
 
     
-    # read file
+    # read from .map file
+    # --------------------------------------------------- #
+    ## initialize 5 filters to the default .map value
+    ## make default message
+    ## only run once
+    # --------------------------------------------------- #
     def load_default(self, _which = 'ibuki'):
         
         # open the .map
@@ -122,7 +127,11 @@ class pose():
         self._default_msg.msgid = 0
         self._default_msg.payload = self._params_value
     
-    # move thread: need to send default 
+    # move thread: need to send default
+    # ----------------------------------------#
+    ## send default message in every 0.5 seconds
+    ## run in thread ##
+    # ----------------------------------------#
     def move_pub_d(self, rate, pub, msg, run_event):
         
         # frequency of publishing
@@ -160,11 +169,12 @@ class pose():
         
         
         # make message
+        ## TODO: make it a function
         self._pub_msg.header.stamp = rospy.Time.now()
         self._pub_msg.seq = 0
         self._pub_msg.name = 'fusion'
         self._pub_msg.msgid = 0
-        self._pub_msg.payload = self.joint_slave
+        self._pub_msg.payload = self.joint_auto
         
         
         return None
@@ -197,7 +207,7 @@ class pose():
             
             # do fusion
             self.fusion()
-            # publish
+            # publish at >20Hz
 
             self.pub.publish(self._pub_msg)            
             
