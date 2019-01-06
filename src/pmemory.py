@@ -15,6 +15,8 @@ from silva_beta.msg import Evans
 
 import sys, threading, getpass
 
+import numpy as np
+
 ### environment variables ###
 
 _RATE = 20  # ros rate
@@ -36,6 +38,10 @@ class pose():
         self._params_serial = []        # serial number of each DoF
         self._params_name = []          # name of each DoF
         self._params_value = []         # value of each DoF
+        
+        self._default = []              # default value
+        self._jointmeans = []           # joint means
+        self._initlist = []             # init lists
         
         self._dict_name_value = {}      # default name-value dict
         self._dict_serial_name = {}     # default serial-name dict
@@ -68,7 +74,12 @@ class pose():
         self.sub_auto = rospy.Subscriber('/silva/joint_local/auto', Evans, self.joint_auto_cb)
         self.sub_auto = rospy.Subscriber('/silva/balance', Evans, self.joint_balance_cb)        
 
-    
+
+    # set default to zeros
+    def set_default_to_zeros(self, nums):
+        for _idx in range (0,nums):
+            self._initlist.append(0)
+            
     # read from .map file
     # --------------------------------------------------- #
     ## initialize 5 filters to the default .map value
@@ -114,12 +125,18 @@ class pose():
         self._dict_serial_value = dict(zip(self._params_serial, self._params_value))
         
         
-        # initialize 5 attributes
-        self.joint_idle = self._params_value
-        self.joint_reflex = self._params_value
-        self.joint_slave = self._params_value
-        self.joint_auto = self._params_value
-        self.joint_balance = self._params_value
+        # initialize attributes
+        self._default = self._params_value      
+        
+        # init the list
+        self.set_default_to_zeros(47)        
+        
+        # set init values all to zeros
+        self.joint_idle = self._initlist
+        self.joint_reflex = self._initlist
+        self.joint_slave = self._initlist
+        self.joint_auto = self._initlist
+        self.joint_balance = self._initlist
         
         # make default message
         self._default_msg.name = 'default'
@@ -149,23 +166,27 @@ class pose():
     ### callback functions ###
             
     def joint_idle_cb(self, msg):
-        self.joint_idle = msg
+        self.joint_idle = msg.payload
         
     def joint_reflex_cb(self, msg):
-        self.joint_reflex = msg
+        self.joint_reflex = msg.payload
         
     def joint_slave_cb(self, msg):
-        self.joint_slave = msg
+        self.joint_slave = msg.payload
         
     def joint_auto_cb(self, msg):
-        self.joint_auto = msg
+        # check the seq
+        if msg.seq == 4:
+            
+            self.joint_auto = msg.payload
     
     def joint_balance_cb(self, msg):
-        self.joint_balance = msg
+        self.joint_balance = msg.payload
         
     def fusion(self):
         
         # take means
+        self._jointmeans = self.joint_auto
         
         
         # make message
@@ -174,7 +195,7 @@ class pose():
         self._pub_msg.seq = 0
         self._pub_msg.name = 'fusion'
         self._pub_msg.msgid = 0
-        self._pub_msg.payload = self.joint_auto
+        self._pub_msg.payload = list(np.add(self._default, self._jointmeans))
         
         
         return None
