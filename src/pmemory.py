@@ -17,6 +17,7 @@ import sys, threading, getpass
 
 import numpy as np
 
+import transformations as tform
 ### environment variables ###
 
 _RATE = 20  # ros rate
@@ -73,12 +74,7 @@ class pose():
         self.sub_slave = rospy.Subscriber('/silva/joint_local/slave', Evans, self.joint_slave_cb)
         self.sub_auto = rospy.Subscriber('/silva/joint_local/auto', Evans, self.joint_auto_cb)
         self.sub_auto = rospy.Subscriber('/silva/balance', Evans, self.joint_balance_cb)        
-
-
-    # set default to zeros
-    def set_default_to_zeros(self, nums):
-        for _idx in range (0,nums):
-            self._initlist.append(0)
+        
             
     # read from .map file
     # --------------------------------------------------- #
@@ -126,10 +122,10 @@ class pose():
         
         
         # initialize attributes
-        self._default = self._params_value      
+        self._default = self._params_value 
         
-        # init the list
-        self.set_default_to_zeros(47)        
+        # set to zeros
+        tform.set_zeros(self._initlist, 47)
         
         # set init values all to zeros
         self.joint_idle = self._initlist

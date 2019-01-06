@@ -9,7 +9,9 @@ Provides
     1.  seperate
     2.  merge
     3.  isplit(by char)
+    4.  set zeros
 """
+
 #==============================================================================
 # SEPERATE COMMAND STRING
 # 
@@ -98,5 +100,9 @@ def isplit(_rosmessage, _splitsign = 'a'):
         print ([_list_angle[1], _list_angle[2]])
         return [_list_angle[1], _list_angle[2]]
         
+def set_zeros(_varname, nums = 47):
+    for _idx in range (0, nums):
+        _varname.append(0)
 
-_version = "2018"
+
+_version = "2019"
