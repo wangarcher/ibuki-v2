@@ -52,12 +52,17 @@ class poseblock():
         
         # subscribers
         self.sub_int = rospy.Subscriber('/silva/slave_local/intention', Evans, self.intention_cb)
+        self.sub_opt = rospy.Subscriber('/silva/slave_local/operation', Evans, self.operation_cb)
         self.sub_default = rospy.Subscriber('/silva/joint_local/default', Evans, self.default_cb)
         
         tform.set_zeros(self._default, _driveunits)
         tform.set_zeros(self._rel, _driveunits)
 
     ### callback functions ###
+    def operation_cb(self, msg):
+        
+        if msg.msgid == 1:
+            self._rel = msg.payload
 
     def intention_cb(self, msg):
         self._intention = msg

@@ -168,7 +168,8 @@ class pose():
         self.joint_reflex = msg.payload
         
     def joint_slave_cb(self, msg):
-        self.joint_slave = msg.payload
+        if msg.seq == 3:
+            self.joint_slave = msg.payload
         
     def joint_auto_cb(self, msg):
         # check the seq
@@ -182,7 +183,7 @@ class pose():
     def fusion(self):
         
         # take means
-        self._jointmeans = self.joint_auto
+        self._jointmeans = self.joint_slave
         
         
         # make message
