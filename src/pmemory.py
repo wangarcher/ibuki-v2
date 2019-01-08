@@ -11,6 +11,10 @@ Motion Fusion Core
 """
 
 import rospy
+
+import rospkg
+import rosparam
+
 from silva_beta.msg import Evans
 
 import sys, threading, getpass
@@ -20,8 +24,8 @@ import numpy as np
 import transformations as tform
 ### environment variables ###
 
-_RATE = 20  # ros rate
-dev_name = sys.argv [1] # ibuki or catkin
+_RATE = 40  # ros rate
+dev_name = 'ibuki'
 
 
 ### pose memory ###
@@ -85,8 +89,11 @@ class pose():
     def load_default(self, _which = 'ibuki'):
         
         # open the .map
-        username = getpass.getuser()
-        mappath = ('/home/' + username+'/'+ self._name + '_ws/src/silva_beta/src/defaults/'+_which+'.map')
+        rospack = rospkg.RosPack()
+        
+        #username = getpass.getuser()
+        mappath = rospack.get_path('silva_beta')+'/src/defaults/'+_which+'.map'
+
         f = open(mappath)
         lines = f.readlines()
         f.close()
@@ -162,7 +169,8 @@ class pose():
     ### callback functions ###
             
     def joint_idle_cb(self, msg):
-        self.joint_idle = msg.payload
+        if msg.seq == 1:
+            self.joint_idle = msg.payload
         
     def joint_reflex_cb(self, msg):
         self.joint_reflex = msg.payload
@@ -183,7 +191,7 @@ class pose():
     def fusion(self):
         
         # take means
-        self._jointmeans = self.joint_slave
+        self._jointmeans = self.joint_idle
         
         
         # make message
