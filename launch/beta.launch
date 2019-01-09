@@ -20,5 +20,10 @@
 
 	<node name="AJI_wheel" pkg="silva_beta" type="joint_interface.py" args="wheel"/>
 
-	<node name="IRSA_FUSION" pkg="silva_beta" type="pmemory.py" args="catkin"/>
+	<node name="IRSA_FUSION" pkg="silva_beta" type="pmemory.py" />
+
+	<node name="filter_IDLE" pkg="silva_beta" type="idle.py" />
+	<node name="filter_REFLEX" pkg="silva_beta" type="reflex.py" />
+	<node name="filter_SLAVE" pkg="silva_beta" type="slave.py" />
+	<node name="filter_AUTO" pkg="silva_beta" type="auto.py" />
 </launch>
