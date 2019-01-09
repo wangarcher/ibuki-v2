@@ -22,6 +22,8 @@ import sys, threading, getpass
 import numpy as np
 
 import transformations as tform
+
+from sensor_msgs.msg import Joy
 ### environment variables ###
 
 _RATE = 40  # ros rate
@@ -38,8 +40,6 @@ class pose():
                 
         self._params_length = 0         # the number of DOFs
         
-        self._covs = [0, 0, 1, 0, 0]    # cov matrix, 1 is slave ctrl
-        
         self._params_serial = []        # serial number of each DoF
         self._params_name = []          # name of each DoF
         self._params_value = []         # value of each DoF
@@ -54,6 +54,10 @@ class pose():
         
         self._default_msg = Evans()     # default msg used to pub
         self._pub_msg = Evans()         # memeory msg used to pub
+        
+        # math operators #
+        self._covs = [0, 0, 1, 0]       # cov matrix, 1 is slave ctrl
+        self._temp = [0, 0, 0, 0]
         
         ### global attributes ###
         
@@ -78,6 +82,10 @@ class pose():
         self.sub_slave = rospy.Subscriber('/silva/joint_local/slave', Evans, self.joint_slave_cb)
         self.sub_auto = rospy.Subscriber('/silva/joint_local/auto', Evans, self.joint_auto_cb)
         self.sub_auto = rospy.Subscriber('/silva/balance', Evans, self.joint_balance_cb)        
+        
+        ## midi subscriber nano Kontrol2
+        self.sub_joy = rospy.Subscriber('/joy', Joy, self.joy_cb)
+        
         
             
     # read from .map file
@@ -133,6 +141,7 @@ class pose():
         
         # set to zeros
         tform.set_zeros(self._initlist, 47)
+        self._initlist = np.array(self._initlist)
         
         # set init values all to zeros
         self.joint_idle = self._initlist
@@ -170,28 +179,47 @@ class pose():
             
     def joint_idle_cb(self, msg):
         if msg.seq == 1:
-            self.joint_idle = msg.payload
+            self.joint_idle = np.array(msg.payload)
         
     def joint_reflex_cb(self, msg):
-        self.joint_reflex = msg.payload
+        if msg.seq == 2:
+            self.joint_reflex = np.array(msg.payload)
         
     def joint_slave_cb(self, msg):
         if msg.seq == 3:
-            self.joint_slave = msg.payload
+            self.joint_slave = np.array(msg.payload)
         
     def joint_auto_cb(self, msg):
         # check the seq
         if msg.seq == 4:
             
-            self.joint_auto = msg.payload
+            self.joint_auto = np.array(msg.payload)
     
     def joint_balance_cb(self, msg):
         self.joint_balance = msg.payload
         
+    def joy_cb(self, msg):
+        _axes = msg.axes
+        self._covs = [_axes[4]+1.0, _axes[5]+1.0, _axes[6]+1.0, _axes[7]+1.0]
+        if sum(self._covs) == 0.0:
+            self._covs = [0,0,1,0]
+        
     def fusion(self):
         
+        # designate means
+        _sum = sum(self._covs)
+        self._temp = self._covs
+        self._covs = [float(self._temp[0])/_sum,\
+                        float(self._temp[1])/_sum,\
+                        float(self._temp[2])/_sum,\
+                        float(self._temp[3])/_sum]
+        print(self._covs)
         # take means
-        self._jointmeans = self.joint_idle
+        self._jointmeans = list(self._covs[0]*self.joint_idle+\
+                                self._covs[1]*self.joint_reflex +\
+                                self._covs[2]*self.joint_slave +\
+                                self._covs[3]*self.joint_auto
+        )
         
         
         # make message
