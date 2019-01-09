@@ -56,5 +56,5 @@ Download [https://github.com/ustyui/ibuki-v2/blob/master/doc/data_format.csv] fo
 1st column. Please keep the intervals of the time constant, and keep the time intervals bigger(or equals to) than 0.02s.
 #### Unit(degree) of the value 
 This .csv file use rad as input value. **The rad apart from the initial posture** is needed.
-for example, if _ARMR_MIDDLE_PITCH rotates for +0.5 rad from the initial posture, then element for this line should be `line[12+1] = 0.5`.
+for example, if _ARMR_MIDDLE_PITCH rotates for +0.5 rad from the initial posture, then element for this line should be `line[12+1] = 0.5`. It is recommended to keep the numbers within 5 digits (e.g. 0.1234).
 
