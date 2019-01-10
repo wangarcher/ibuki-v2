@@ -19,6 +19,7 @@ import getpass
 import threading
 
 import transformations as tform
+from sensor_msgs.msg import Joy
 
 _RATE = 20 # ros rate
 _driveunits = 47
@@ -146,7 +147,7 @@ class GUI(object):
             
             
             for i in range(idx*5, idx*5+5):
-                self.window[i] = Scale(self.master, from_=-100, to=100, length = 100)
+                self.window[i] = Scale(self.master, from_=-500, to=500, length = 100)
                 self.window[i].set(0)
                 self.window[i].grid(row=idx*2+1,column = i-5*idx)
                 

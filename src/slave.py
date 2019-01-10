@@ -62,7 +62,7 @@ class poseblock():
     def operation_cb(self, msg):
         
         if msg.msgid == 1:
-            self._rel = msg.payload
+            self._rel = list(msg.payload)
 
     def intention_cb(self, msg):
         self._intention = msg
@@ -73,8 +73,8 @@ class poseblock():
         # get the payload
         _payload = msg.payload
         
-        # if the msgid = 1 then to relative
-        if msg.msgid == 1:
+        # if the msgid = 3 then to relative
+        if msg.msgid == 3:
             
             # place payload to the cut place
             for _idx in range (0, len(_payload)):
@@ -113,6 +113,10 @@ class poseblock():
             # publish the message
             self.pub.publish(self._pub_msg)
             
+            
+            # debug
+            
+            print type(self._rel)
             loop_rate.sleep()
         
         
