@@ -1,6 +1,8 @@
 # ibuki-v2
 the silva system of ibuki v2 (developing)
 
+master branch: [![Build Status](https://travis-ci.org/ustyui/ibuki-v2.svg?branch=master)](https://travis-ci.org/ustyui/ibuki-v2)
+
 ## Usage
 Can be used to control joints of ibuki.
 ## Dependencies
