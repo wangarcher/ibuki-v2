@@ -63,9 +63,14 @@ class Joint():
         self._silence = silence
         self._msgid = 0
         self._seq = 0
+        
         self._payload = []
+        self._payload_p = []
+        self._payload_c = []        
+        
         self._position = ''
         self._current = ''
+        self._pub_msg = Evans()
         
         
 "------------------------------------------------------------------main func"
@@ -89,12 +94,22 @@ def mbed_cb(_sock, _sockb, _str, run_event, cls):
             # TODO: add timeout?
             _sock.sendto(_str, (ip(dev_name), _port))
             cls._position, addr_rt =  _sock.recvfrom(1024)
+            cls._payload_p = tform.seperate(cls._position)
             
             _sockb.sendto(_str, (ip(dev_name), _curt))
             cls._current, addr_rt = _sockb.recvfrom(1024)
+            cls._payload_c = tform.seperateCurrent(cls._current)
         rate.sleep()
         
-        
+def make_message(msg, msgid, seq, name, payload):
+    # make message
+    msg.header.stamp = rospy.Time.now()
+    msg.seq = seq
+    msg.name = name
+    msg.msgid = msgid
+    msg.payload = payload
+
+    return None   
         
 
 if __name__ == "__main__":
@@ -118,6 +133,8 @@ if __name__ == "__main__":
     
     sub = rospy.Subscriber('/silva/joint_local/fusion', Evans, callback, joint)
     
+    pub = rospy.Publisher('/silva/reflex_local/intention', Evans, queue_size=10)
+    
     "thread"    
     run_event = threading.Event()
     run_event.set()
@@ -139,8 +156,8 @@ if __name__ == "__main__":
             motorsock.sendto(otm, (ip(dev_name), port(dev_name)))
             
             #print otm
-            #print joint._position
-            #print joint._current
+            print joint._payload_p
+            print joint._payload_c
       
 #---------------------------------------------------------------------------         
 
