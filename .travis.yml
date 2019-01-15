@@ -18,9 +18,6 @@ matrix:
   - name: "Xenial kinetic"
     dist: xenial
     env: ROS_DISTRO=kinetic
-  - name: "Bionic melodic"
-    dist: bionic
-    env: ROS_DISTRO=melodic
 
 notifications:
   email:
