@@ -17,11 +17,3 @@ cd ~/catkin_ws
 ln -s ~/some_path/ibuki-v2 ~/catkin_ws/src/silva_beta
 catkin_make
 ```
-## Function
-### state control by midi controller
-### auto state control (to be finished)
-### idle motion
-### humanoid model time-based joint motion mapping
-### human identification and reaction
-### co-walking
-### tele-operation
