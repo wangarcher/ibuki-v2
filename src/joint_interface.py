@@ -16,6 +16,7 @@ from config import ip, port
 
 import socket
 import sys
+import threading
 
 # TODO: change this to a file load function
 seq_of_jointname = {'neck':0,
@@ -63,18 +64,50 @@ class Joint():
         self._msgid = 0
         self._seq = 0
         self._payload = []
+        self._position = ''
+        self._current = ''
         
         
 "------------------------------------------------------------------main func"
+
+def mbed_cb(_sock, _sockb, _str, run_event, cls):
+    # send hello
+    rate = rospy.Rate(25)
+    _flag = 0
+    # which device?
+    if dev_name == 'arml':
+        _port = 10023
+        _curt = 10300
+        _flag = 1
+    elif dev_name == 'armr':
+        _port = 10022
+        _curt = 10200
+        _flag = 1
+        
+    while run_event.is_set() and not rospy.is_shutdown():
+        if _flag == 1:
+            # TODO: add timeout?
+            _sock.sendto(_str, (ip(dev_name), _port))
+            cls._position, addr_rt =  _sock.recvfrom(1024)
+            
+            _sockb.sendto(_str, (ip(dev_name), _curt))
+            cls._current, addr_rt = _sockb.recvfrom(1024)
+        rate.sleep()
+        
+        
+        
 
 if __name__ == "__main__":
     
     "node, UDP init"
     motorsock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#    rtclient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#    cur_client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    
+    rtclient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    cur_client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    
+    
     rospy.init_node('JI_'+dev_name, anonymous = True)
     rate = rospy.Rate(25)
+    
+
     
 #---------------------------------------------------------------------------    
     "define this joint"
@@ -84,6 +117,14 @@ if __name__ == "__main__":
     "read Evans message and write into the joint"   
     
     sub = rospy.Subscriber('/silva/joint_local/fusion', Evans, callback, joint)
+    
+    "thread"    
+    run_event = threading.Event()
+    run_event.set()
+    move_t = threading.Thread(target = mbed_cb, args = \
+    (rtclient,cur_client,  'hello', run_event, joint))
+    move_t.start()
+    
 #---------------------------------------------------------------------------     
     while not rospy.is_shutdown():
         
@@ -95,9 +136,11 @@ if __name__ == "__main__":
             
 #---------------------------------------------------------------------------            
             "UDP send launch"
-            motorsock.sendto(otm, (ip(dev_name), port(dev_name)))            
-
-        print otm
+            motorsock.sendto(otm, (ip(dev_name), port(dev_name)))
+            
+            #print otm
+            #print joint._position
+            #print joint._current
       
 #---------------------------------------------------------------------------         
 
