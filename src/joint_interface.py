@@ -48,7 +48,14 @@ def callback(msg, args):
     instance._seq = msg.seq
     instance._msgid = msg.msgid
     
-    _payload = msg.payload[_cut*5:(_cut+1)*5]
+    if _cut < 8:
+        _payload = msg.payload[_cut*5:(_cut+1)*5]
+        
+    # TODO: this is not elegant
+    elif _cut == 8:
+        _payload = msg.payload[_cut*5:_cut*5+3]
+    elif _cut == 9:
+        _payload = msg.payload[43:47]
 
     instance._payload = _payload
         
@@ -77,7 +84,7 @@ class Joint():
 
 def mbed_cb(_sock, _sockb, _str, run_event, cls):
     # send hello
-    rate = rospy.Rate(25)
+    rate = rospy.Rate(50)
     _flag = 0
     # which device?
     if dev_name == 'arml':
@@ -88,6 +95,9 @@ def mbed_cb(_sock, _sockb, _str, run_event, cls):
         _port = 10022
         _curt = 10200
         _flag = 1
+    elif dev_name == 'wheel':
+        _port = 10019
+        _flag = 2
         
     while run_event.is_set() and not rospy.is_shutdown():
         if _flag == 1:
@@ -99,6 +109,12 @@ def mbed_cb(_sock, _sockb, _str, run_event, cls):
             _sockb.sendto(_str, (ip(dev_name), _curt))
             cls._current, addr_rt = _sockb.recvfrom(1024)
             cls._payload_c = tform.seperateCurrent(cls._current)
+            
+        if _flag == 2:
+            _sock.sendto(_str, (ip(dev_name), _port))
+            cls._position, addr_rt =  _sock.recvfrom(1024)
+            cls._payload_p = tform.seperate(cls._position)
+            
         rate.sleep()
         
 def make_message(msg, msgid, seq, name, payload):
@@ -120,7 +136,7 @@ if __name__ == "__main__":
     cur_client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)    
     
     rospy.init_node('JI_'+dev_name, anonymous = True)
-    rate = rospy.Rate(25)
+    rate = rospy.Rate(50)
     
 
     
@@ -155,9 +171,9 @@ if __name__ == "__main__":
             "UDP send launch"
             motorsock.sendto(otm, (ip(dev_name), port(dev_name)))
             
-            #print otm
+            print otm
             print joint._payload_p
-            print joint._payload_c
+#            print joint._payload_c
       
 #---------------------------------------------------------------------------         
 

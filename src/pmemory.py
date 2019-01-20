@@ -13,11 +13,10 @@ Motion Fusion Core
 import rospy
 
 import rospkg
-import rosparam
 
 from silva_beta.msg import Evans
 
-import sys, threading, getpass
+import sys, threading
 
 import numpy as np
 
@@ -98,8 +97,6 @@ class pose():
         
         # open the .map
         rospack = rospkg.RosPack()
-        
-        #username = getpass.getuser()
         mappath = rospack.get_path('silva_beta')+'/src/defaults/'+_which+'.map'
 
         f = open(mappath)
@@ -140,7 +137,7 @@ class pose():
         self._default = self._params_value 
         
         # set to zeros
-        tform.set_zeros(self._initlist, 47)
+        tform.set_zeros(self._initlist, self._params_length)
         self._initlist = np.array(self._initlist)
         
         # set init values all to zeros
@@ -202,7 +199,7 @@ class pose():
         _axes = msg.axes
         self._covs = [_axes[4]+1.0, _axes[5]+1.0, _axes[6]+1.0, _axes[7]+1.0]
         if sum(self._covs) == 0.0:
-            self._covs = [0,0,1,0]
+            self._covs = [0,0,1,0] # default slave, on demand
         
     def fusion(self):
         
@@ -213,7 +210,7 @@ class pose():
                         float(self._temp[1])/_sum,\
                         float(self._temp[2])/_sum,\
                         float(self._temp[3])/_sum]
-        print(self._covs)
+        # print(self._covs)
         # take means
         self._jointmeans = list(self._covs[0]*self.joint_idle+\
                                 self._covs[1]*self.joint_reflex +\
@@ -243,9 +240,9 @@ class pose():
         
         # init the default message
         self.load_default()
-        print (self._dict_name_value)
-        print (self._dict_serial_name)
-        print (self._dict_serial_value)
+        # print (self._dict_name_value)
+        # print (self._dict_serial_name)
+        # print (self._dict_serial_value)
         
         # signal flag for running threads
         run_event = threading.Event()

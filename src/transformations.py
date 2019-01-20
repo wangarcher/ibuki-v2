@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+_driveunits = 47 # 47 is ibuki driveunits number
+
 """
 Transform
 =====
@@ -100,9 +102,14 @@ def isplit(_rosmessage, _splitsign = 'a'):
         print ([_list_angle[1], _list_angle[2]])
         return [_list_angle[1], _list_angle[2]]
         
-def set_zeros(_varname, nums = 47):
+def set_zeros(_varname, nums = _driveunits):
+    # 47 is ibuki driveunits number
+    
     for _idx in range (0, nums):
         _varname.append(0)
 
+# TODO: make a make message function, rospy needed
+def make_message():
+    return None
 
 _version = "2019"

@@ -157,9 +157,13 @@ class GUI(object):
             self.label.grid(row=idx*2, column = 5)
             
             for i in range((idx+5)*5, (idx+5)*5+5):
-                self.window[i] = Scale(self.master, from_=-100, to=100, length = 100)
+                self.window[i] = Scale(self.master, from_=-1000, to=1000, length = 100)
                 self.window[i].set(0)
                 self.window[i].grid(row=idx*2+1,column = i-5*idx+5)
+                
+            self.window[45] = Scale(self.master, from_=-500, to=500, length = 100)
+            self.window[45].set(0)
+            self.window[45].grid(row = 11, column = 25)
 
 if __name__ == "__main__":
     
@@ -196,7 +200,7 @@ if __name__ == "__main__":
         ibk.master.update()
         
         # send message
-        for index in range(0,45):
+        for index in range(0,46):
             Dpose._payload[index] = int(ibk.window[index].get())
             
         Dpose._pub_msg.payload = Dpose._payload

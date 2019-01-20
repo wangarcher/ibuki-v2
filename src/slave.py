@@ -17,7 +17,6 @@ import transformations as tform
 ### environment variables ###
 
 _RATE = 30 # ros rate
-_driveunits = 47 # drivable units of the robot
 
 # TODO: change this to a file load function
 seq_of_jointname = {'neck':0,
@@ -55,13 +54,15 @@ class poseblock():
         self.sub_opt = rospy.Subscriber('/silva/slave_local/operation', Evans, self.operation_cb)
         self.sub_default = rospy.Subscriber('/silva/joint_local/default', Evans, self.default_cb)
         
-        tform.set_zeros(self._default, _driveunits)
-        tform.set_zeros(self._rel, _driveunits)
+        tform.set_zeros(self._default)
+        tform.set_zeros(self._rel)
 
     ### callback functions ###
     def operation_cb(self, msg):
-        
-        if msg.msgid == 1:
+        # TODO: if there is any HSM message, stop debug gui
+
+        # if only debug gui
+        if msg.msgid == 3:
             self._rel = list(msg.payload)
 
     def intention_cb(self, msg):
@@ -116,7 +117,7 @@ class poseblock():
             
             # debug
             
-            print type(self._rel)
+            # print type(self._rel)
             loop_rate.sleep()
         
         

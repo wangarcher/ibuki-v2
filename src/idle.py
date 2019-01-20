@@ -16,7 +16,6 @@ import transformations as tform
 ### environment variables ###
 
 _RATE = 30 # ros rate
-_driveunits = 47 # drivable units of the robot
 
 # TODO: change this to a file load function
 seq_of_jointname = {'neck':0,
@@ -34,6 +33,8 @@ seq_of_jointname = {'neck':0,
 
 class poseblock():
     def __init__(self):
+        
+        # number of driveunits
         
         # global variables
         self._rel = []
@@ -53,8 +54,8 @@ class poseblock():
         self.sub_int = rospy.Subscriber('/silva/idle_local/intention', Evans, self.intention_cb)
         self.sub_default = rospy.Subscriber('/silva/joint_local/default', Evans, self.default_cb)
         
-        tform.set_zeros(self._default, _driveunits)
-        tform.set_zeros(self._rel, _driveunits)
+        tform.set_zeros(self._default)
+        tform.set_zeros(self._rel)
 
     ### callback functions ###
 
