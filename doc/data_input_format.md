@@ -61,7 +61,10 @@ Download [https://github.com/ustyui/ibuki-v2/blob/master/doc/data_format.csv] fo
 ### ibuki jointname
 1st row. **Don't edit**.
 ### Time (s)
-1st column. Please keep the time intervals bigger(or equals to) than 0.02s.
+1st column. **Current time(time passed from the very beginning)**, NOT the time interval from the last frame. e.g., 4.2 at line 9 means 4.2 seconds from the beginning of the motion.
+
+Please keep the time intervals bigger(or equals to) than 0.02s.
+
 ### Unit(degree) of the value 
 This .csv file use **rad** as input value. 
 
