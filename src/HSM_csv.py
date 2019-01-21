@@ -24,8 +24,8 @@ _driveunits = 50
 _KDC = 127.32395447
 _RES = 0.01999
 
-#_filename = sys.argv[1]
-_filename = 'lookaround'
+_filename = sys.argv[1]
+#_filename = 'lookaround'
 # open the .csv
 rospack = rospkg.RosPack()
 csvpath = rospack.get_path('silva_beta')+'/src/csv/'+_filename+'.csv'
