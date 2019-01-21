@@ -3,7 +3,9 @@
 ## Coordination Frame
 There are 47 degrees of freedom and _ main joints in ibuki-v2. 
 
-The coordination frame of each joint is set as follows. **Note: The axis which face you is Y axis, and all of the directions of the rotations obeys the following coordination frame.**
+The coordination frame of each joint is set as follows. 
+
+**Note: The axis which face you is Y axis, and all of the directions of the rotations obeys the following coordination frame.**
 
 **the direction which is the same with the coordinate frame is marked as +1(positive direction). Otherwise, it is marked as -1(negative direction)**
 
@@ -60,6 +62,19 @@ Download [https://github.com/ustyui/ibuki-v2/blob/master/doc/data_format.csv] fo
 #### Time (s)
 1st column. Please keep the intervals of the time constant, and keep the time intervals bigger(or equals to) than 0.02s.
 #### Unit(degree) of the value 
-This .csv file use rad as input value. **The rad apart from the initial posture** is needed.
+This .csv file use rad as input value. 
+
+**The rad apart from the initial posture** is needed.
+
 for example, if _ARMR_MIDDLE_PITCH rotates for +0.5 rad from the initial posture, then element for this line should be `line[12+1] = 0.5`. It is recommended to keep the numbers within 5 digits (e.g. 0.1234).
+#### Direction of the value
+Please refer to the coordination frame above.
+
+In the coordinate frame, 
+
+the direction the same with the arrow (**unclockwise towards the postive axis**) is positive direction.
+In this case, you should input your value as a positive value.
+
+the direction the same with the arrow (**unclockwise towards the postive axis**) is negative direction.
+In this case, you should input your value as a negative value.
 
