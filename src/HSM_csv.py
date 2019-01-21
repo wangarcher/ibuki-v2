@@ -23,6 +23,12 @@ _RATE = 50  # ros rate
 _driveunits = 50
 _KDC = 127.32395447
 _RES = 0.01999
+# TODO: make this mask universal
+_MASK = [
+        1, -1, 1, -1, 1,
+        -1, -1, -1, -1, -1,
+        -1, -1, 1, -1, -1
+        ]
 
 _filename = sys.argv[1]
 #_filename = 'lookaround'
@@ -59,8 +65,10 @@ class csvslave():
         # subscribers
     ### calculations ###
     def rad2cmd(self):
-        #self._motionlist= list(self._df.ix[i, 1:_driveunits])
-        # change rad to command pi/4 = 100 
+        # multiply mask first
+        for i in range(0,len(_MASK)):
+            self._df[self._df.columns[i+1]] = _MASK[i] * self._df[self._df.columns[i+1]]
+        
         for i in range(0, len(self._df)):
             # time append
             if (i == 0):
@@ -69,7 +77,7 @@ class csvslave():
                 self._timelist.append(float(self._df.ix[i,0])-float(self._df.ix[i-1,0])) # interval
             
             # listize panda frame
-            templist = list(self._df.ix[i,1:_driveunits+1])
+            templist = list(self._df.ix[i,1:])
 
             self._motionlist.append(templist)
             
@@ -110,7 +118,7 @@ class csvslave():
                     
                     #print(self._payload)
                     time.sleep(_RES)
-                print(self._payload_float)
+                #print(self._payload_float)
                 self._lastmotion = self._motionlist[i]
         return None
 
