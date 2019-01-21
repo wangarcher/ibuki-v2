@@ -3,7 +3,11 @@
 ## Coordination Frame
 There are 47 degrees of freedom and _ main joints in ibuki-v2. 
 
-The coordination frame of each joint is set as follows. **Note that the RPY is refering to when you face the frontside of ibuki.**
+The coordination frame of each joint is set as follows. **Note: The axis which face you is Y axis, and all of the directions of the rotations obeys the following coordination frame.**
+
+**the direction which is the same with the coordinate frame is marked as +1(positive direction). Otherwise, it is marked as -1(negative direction)**
+
+**For example, when ibuki faces you, the neck looks the right side of the image, the direction is +1**
 
 <img src="https://github.com/ustyui/ibuki-img/blob/master/Picture1.jpg?raw=true" width="200" ><img src="https://github.com/ustyui/ibuki-img/blob/master/Picture2.png?raw=true" width="330" >
 
