@@ -31,3 +31,14 @@ To run the example, run
 ```
 rosrun silva_beta HSM_csv.py lookaround
 ```
+You can monitor the output using
+```
+rostopic echo /silva/slave_local/operation
+```
+### Messages
+Silva has different type of messages based on its framework.
+
+You can check the message type by using
+```
+rostopic list /silva
+```
