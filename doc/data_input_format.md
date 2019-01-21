@@ -57,17 +57,17 @@ To map your simulation model joints with ibuki's joints, do as follows:
 ### .csv file 
 Download [https://github.com/ustyui/ibuki-v2/blob/master/doc/data_format.csv] for better understanding.
 
-#### ibuki jointname
-1st row. Don't edit. You can also create a file without this row
-#### Time (s)
-1st column. Please keep the intervals of the time constant, and keep the time intervals bigger(or equals to) than 0.02s.
-#### Unit(degree) of the value 
-This .csv file use rad as input value. 
+### ibuki jointname
+1st row. **Don't edit**.
+### Time (s)
+1st column. Please keep the time intervals bigger(or equals to) than 0.02s.
+### Unit(degree) of the value 
+This .csv file use **rad** as input value. 
 
-**The rad apart from the initial posture** is needed.
+**Current rad apart from the initial posture** is needed.
 
 for example, if _ARMR_MIDDLE_PITCH rotates for +0.5 rad from the initial posture, then element for this line should be `line[12+1] = 0.5`. It is recommended to keep the numbers within 5 digits (e.g. 0.1234).
-#### Direction of the value
+### Direction of the value
 Please refer to the coordination frame above.
 
 In the coordinate frame, 
