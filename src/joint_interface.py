@@ -47,16 +47,9 @@ def callback(msg, args):
            
     instance._seq = msg.seq
     instance._msgid = msg.msgid
-    
-    if _cut < 8:
-        _payload = msg.payload[_cut*5:(_cut+1)*5]
-        
-    # TODO: this is not elegant
-    elif _cut == 8:
-        _payload = msg.payload[_cut*5:_cut*5+3]
-    elif _cut == 9:
-        _payload = msg.payload[43:47]
 
+    _payload = msg.payload[_cut*5:(_cut+1)*5]
+        
     instance._payload = _payload
         
 "------------------------------------------------------------------joint class"
@@ -95,9 +88,9 @@ def mbed_cb(_sock, _sockb, _str, run_event, cls):
         _port = 10022
         _curt = 10200
         _flag = 1
-    elif dev_name == 'wheel':
-        _port = 10019
-        _flag = 2
+#    elif dev_name == 'wheel':
+#        _port = 10019
+#        _flag = 2
         
     while run_event.is_set() and not rospy.is_shutdown():
         if _flag == 1:

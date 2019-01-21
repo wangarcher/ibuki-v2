@@ -61,9 +61,8 @@ class poseblock():
     def operation_cb(self, msg):
         # TODO: if there is any HSM message, stop debug gui
 
-        # if only debug gui
-        if msg.msgid == 3:
-            self._rel = list(msg.payload)
+        
+        self._rel = list(msg.payload)
 
     def intention_cb(self, msg):
         self._intention = msg

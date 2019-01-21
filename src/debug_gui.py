@@ -22,7 +22,6 @@ import transformations as tform
 from sensor_msgs.msg import Joy
 
 _RATE = 20 # ros rate
-_driveunits = 47
 
 # TODO: change this to a file load function
 seq_of_jointname = {'neck':0,
@@ -102,8 +101,8 @@ class Tkpose(object):
         
         
         # initialize attributes
-        tform.set_zeros(self._default, _driveunits)
-        tform.set_zeros(self._payload, _driveunits)
+        tform.set_zeros(self._default)
+        tform.set_zeros(self._payload)
         self._pub_msg.payload = self._default
     
     def start(self):
@@ -133,8 +132,8 @@ class GUI(object):
         self.window = []
         self.msg = []
         
-        tform.set_zeros(self.window, _driveunits)
-        tform.set_zeros(self.msg,_driveunits)
+        tform.set_zeros(self.window)
+        tform.set_zeros(self.msg)
 
         ### GUI initialization ###
         self.master = Tk()
@@ -151,7 +150,7 @@ class GUI(object):
                 self.window[i].set(0)
                 self.window[i].grid(row=idx*2+1,column = i-5*idx)
                 
-        for idx in range(0, 4):
+        for idx in range(0, 5):
             self.label = Label(self.master, text = \
             list(seq_of_jointname.keys())[list(seq_of_jointname.values()).index(idx+5)])
             self.label.grid(row=idx*2, column = 5)
@@ -161,9 +160,6 @@ class GUI(object):
                 self.window[i].set(0)
                 self.window[i].grid(row=idx*2+1,column = i-5*idx+5)
                 
-            self.window[45] = Scale(self.master, from_=-500, to=500, length = 100)
-            self.window[45].set(0)
-            self.window[45].grid(row = 11, column = 25)
 
 if __name__ == "__main__":
     
@@ -200,7 +196,7 @@ if __name__ == "__main__":
         ibk.master.update()
         
         # send message
-        for index in range(0,46):
+        for index in range(0,50):
             Dpose._payload[index] = int(ibk.window[index].get())
             
         Dpose._pub_msg.payload = Dpose._payload
