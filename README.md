@@ -17,3 +17,17 @@ cd ~/catkin_ws
 ln -s ~/some_path/ibuki-v2 ~/catkin_ws/src/silva_beta
 catkin_make
 ```
+## How to Use
+### System Boot
+run
+```
+roslaunch silva_beta beta.launch
+```
+
+### Humanoid Simulation Model Mapping 
+see docs in /doc/data_input_format.csv
+
+To run the example, run
+```
+rosrun silva_beta HSM_csv.py lookaround
+```
