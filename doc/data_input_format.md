@@ -13,6 +13,7 @@ The coordination frame of each joint is set as follows.
 
 <img src="https://github.com/ustyui/ibuki-img/blob/master/Picture1.jpg?raw=true" width="200" ><img src="https://github.com/ustyui/ibuki-img/blob/master/Picture2.png?raw=true" width="330" >
 
+
 ## Simulation Model Initial Posture and Joint Mapping of Ibuki
 ### Simulation Model Initial Posture
 Note that the ibuki is lack of some joints comparing with the simulation model. When generating input files, these effects should be considered.
@@ -66,7 +67,9 @@ This .csv file use **rad** as input value.
 
 **Current rad apart from the initial posture** is needed.
 
-for example, if _ARMR_MIDDLE_PITCH rotates for +0.5 rad from the initial posture, then element for this line should be `line[12+1] = 0.5`. It is recommended to keep the numbers within 5 digits (e.g. 0.1234).
+<img src="https://github.com/ustyui/ibuki-img/blob/master/degree_def.png?raw=true" width="330" >
+
+For example, if _ARMR_MIDDLE_PITCH rotates for +0.5 rad from the initial posture, then element for this line should be `line[12+1] = 0.5`. It is recommended to keep the numbers within 5 digits (e.g. 0.1234).
 ### Direction of the value
 Please refer to the coordination frame above.
 
