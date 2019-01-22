@@ -14,7 +14,7 @@ from silva_beta.msg import Evans
 import transformations as tform
 from config import ip, port
 
-import socket
+import socket, errno
 import sys
 import threading
 
@@ -161,8 +161,14 @@ if __name__ == "__main__":
             otm = tform.merge(joint._payload)
             
 #---------------------------------------------------------------------------            
-            "UDP send launch"
-            motorsock.sendto(otm, (ip(dev_name), port(dev_name)))
+            try:
+                "UDP send launch"
+                motorsock.sendto(otm, (ip(dev_name), port(dev_name)))
+            except socket.error as error:
+                if error.errno == errno.ENETUNREACH:
+                    rospy.WARN("connection to mbed lost.")
+                else:
+                    raise
             
             print otm
             print joint._payload_p
