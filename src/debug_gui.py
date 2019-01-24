@@ -12,8 +12,9 @@ dev_name = 'ibuki'
 from Tkinter import *
 from struct import *
 
-import rospy
-from ibuki_extra.msg import Evans
+import rospy, rospkg
+from silva_beta.msg import Evans
+from std_msgs.msg import String
 
 import getpass
 import threading
@@ -64,8 +65,9 @@ class Tkpose(object):
     def load_default(self, _which = 'ibuki'):
         
         # open the .map
-        username = getpass.getuser()
-        mappath = ('/home/' + username+'/'+ self._name + '_ws/src/silva_beta/src/defaults/'+_which+'.map')
+        rospack = rospkg.RosPack()
+        
+        mappath = rospack.get_path('silva_beta')+'/src/defaults/'+_which+'.map'
         f = open(mappath)
         lines = f.readlines()
         f.close()
@@ -132,9 +134,15 @@ class GUI(object):
         self.window = []
         self.msg = []
         
+        # speech
+        self._contents = ''
+        
         tform.set_zeros(self.window)
         tform.set_zeros(self.msg)
-
+        
+        #inner publishers
+        pub_s = rospy.Publisher('/silva/speech_global/jp', String, queue_size=10)
+        
         ### GUI initialization ###
         self.master = Tk()
         self.master.title("Ibuki System Configuration ver 2.0")
@@ -156,9 +164,29 @@ class GUI(object):
             self.label.grid(row=idx*2, column = 5)
             
             for i in range((idx+5)*5, (idx+5)*5+5):
-                self.window[i] = Scale(self.master, from_=-1000, to=1000, length = 100)
+                self.window[i] = Scale(self.master, from_=-100, to=100, length = 100)
                 self.window[i].set(0)
                 self.window[i].grid(row=idx*2+1,column = i-5*idx+5)
+                
+        ### function definition ###
+        def show_entry_fields():
+            self._contents = self.textbox.get()
+            print(self._contents)
+            self.textbox.delete(0,END)
+            pub_s.publish(self._contents)
+                
+        # dialogue texboxes
+        self.label = Label(self.master, text = 'speech interface')
+        self.label.grid(row = 1, column = 41)
+        
+        self.textbox = Entry(self.master)
+        self.textbox.insert(10,"対話内容")
+        self.textbox.grid(row = 1, column = 42)
+        
+        self.button = Button(self.master, text = "send speech", command = show_entry_fields)
+        self.button.grid(row = 1, column = 43)
+        self.button = Button(self.master, text = "QUIT", command = self.master.quit)
+        self.button.grid(row = 1, column = 44)
                 
 
 if __name__ == "__main__":
@@ -182,6 +210,7 @@ if __name__ == "__main__":
     
     # publisher
     pub = rospy.Publisher('/silva/slave_local/operation', Evans, queue_size=10)
+    
     # thread that publish the operation message
     move_t = threading.Thread(target = opt_pub, args = \
     (20, pub, Dpose._pub_msg, run_event))
