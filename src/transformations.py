@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import rospy
+import rospy, rospkg
 _driveunits = 50 # 50 is ibuki driveunits number
 
 """
@@ -123,6 +123,48 @@ def make_message(msg, seq, name, msgid, payload):
     msg.seq = seq
     msg.name = name
     msg.msgid = msgid
-    msg.payload = payload      
+    msg.payload = payload  
+    
+#==============================================================================
+# LOAD MAP
+# read from .map file
+    # --------------------------------------------------- #
+    ## only read values for operation
+    ## make default message
+    ## only run once
+    # --------------------------------------------------- #
+#==============================================================================        
 
+def load_map(_which = 'ibuki'):
+    
+    params_valuea = []
+    params_valueb = []
+    
+    # open the .map
+    rospack = rospkg.RosPack()
+    mappath = rospack.get_path('silva_beta')+'/src/defaults/'+_which+'.map'
+
+    f = open(mappath)
+    lines = f.readlines()
+    f.close()
+    
+    # get serial, name and value
+    for index in range(4, len(lines)):
+        
+        # delete \n 
+        string_lines = lines[index][0:-1]
+        
+        # delete tabs
+        params_list = string_lines.split('\t')
+        # print params_list
+        
+        # get lists
+        params_valuea.append(int(params_list[2]))
+        try:
+            params_valueb.append(int(params_list[3]))
+        except IndexError:
+            pass
+            
+    return params_valuea, params_valueb
+        
 _version = "2019"

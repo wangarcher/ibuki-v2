@@ -16,7 +16,7 @@ import rospy, rospkg
 from silva_beta.msg import Evans
 from std_msgs.msg import String, Float32MultiArray
 
-import getpass
+import numpy as np
 import threading
 
 import transformations as tform
@@ -130,6 +130,7 @@ def opt_pub(rate, pub, msg, run_event):
 
 class GUI(object):
     def __init__(self):
+        ### Initialization Varialbes ###
         
         self.window = []
         self.canvas = [[],[],[],[]]
@@ -148,6 +149,20 @@ class GUI(object):
         
         # inner subscribers
         sub_cov = rospy.Subscriber('/silva/states', Float32MultiArray, self.state_cb)
+        
+        # get minimum, maximum, and default
+        default, blank = tform.load_map('ibuki')
+        min_v, max_v = tform.load_map('limit')
+        min_rel = []
+        max_rel = []
+        # get rel minimum and maximum
+        for i in range (len(min_v)):
+            if (min_v[i]!=-1 or max_v[i]!=-1):
+                min_rel.append(default[i] - min_v[i])
+                max_rel.append(max_v[i]- default[i])
+            else:
+                min_rel.append(100)
+                max_rel.append(100)
         
         ### function definition ###
         
@@ -170,7 +185,7 @@ class GUI(object):
             
             # slier in row 4,7,10,13,16, column in 0,1,2,3,4
             for i in range(idx*5, idx*5+5):
-                self.window[i] = Scale(self.master, from_=-500, to=500, length = 100)
+                self.window[i] = Scale(self.master, from_=-min_rel[i], to=max_rel[i], length = 100)
                 self.window[i].set(0)
                 self.window[i].grid(row=idx*3+1,column = i-5*idx, rowspan =2)
                 
@@ -178,14 +193,14 @@ class GUI(object):
         
         ## Second Frame ##
         for idx in range(0, 5):
-            # label in row 0,2,4,6,8, column in 6
+            # label in row 0,3,6,9,12, column in 6
             self.label = Label(self.master, text = \
             list(seq_of_jointname.keys())[list(seq_of_jointname.values()).index(idx+5)])
             self.label.grid(row=idx*3, column = 6, columnspan = 4)
             
-            # slier in row 1,3,5,7,9, column in 6,7,8,9,10
+            # slier in row 4,7,10,13,16, column in 6,7,8,9,10
             for i in range((idx+5)*5, (idx+5)*5+5):
-                self.window[i] = Scale(self.master, from_=-100, to=100, length = 100)
+                self.window[i] = Scale(self.master, from_=-min_rel[i], to=max_rel[i], length = 100)
                 self.window[i].set(0)
                 self.window[i].grid(row=idx*3+1,column = i-5*idx-19, rowspan=2)
                 
@@ -205,7 +220,7 @@ class GUI(object):
         self.button.grid(row = 2, column = 11, rowspan = 2, columnspan =4)
         
         # state canvas
-        # label in row17, column 0
+        # label in row3, column 11
         self.label = Label(self.master, text = 'state')
         self.label.grid(row = 3, column =11, columnspan = 4)
         for idx in range(0, len(self.canvas)):
@@ -217,6 +232,10 @@ class GUI(object):
         # update canvas
         for idx in range(0, len(self.canvas)):
             self.canvas[idx].create_rectangle(0,58,20,60, fill = 'red', tag= 'bar')
+        
+        # label in row16, column 11
+        self.label = Label(self.master, text = 'state')
+        self.label.grid(row = 15, column =11, columnspan = 4)        
                        
     def state_cb(self, msg):
         self.state = msg.data
