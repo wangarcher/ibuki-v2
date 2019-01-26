@@ -14,7 +14,7 @@ from struct import *
 
 import rospy, rospkg
 from silva_beta.msg import Evans
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32MultiArray
 
 import getpass
 import threading
@@ -132,7 +132,10 @@ class GUI(object):
     def __init__(self):
         
         self.window = []
+        self.canvas = [[],[],[],[]]
         self.msg = []
+        self.state = [0.0, 0.0, 0.0, 0.0]
+        self.statetag = ['I', 'R', 'S', 'A']
         
         # speech
         self._contents = ''
@@ -143,51 +146,88 @@ class GUI(object):
         #inner publishers
         pub_s = rospy.Publisher('/silva/speech_global/jp', String, queue_size=10)
         
-        ### GUI initialization ###
-        self.master = Tk()
-        self.master.title("Ibuki System Configuration ver 2.0")
+        # inner subscribers
+        sub_cov = rospy.Subscriber('/silva/states', Float32MultiArray, self.state_cb)
         
-        for idx in range(0, 5):
-            self.label = Label(self.master, text = \
-            list(seq_of_jointname.keys())[list(seq_of_jointname.values()).index(idx)])
-            self.label.grid(row=idx*2, column = 0)            
-            
-            
-            for i in range(idx*5, idx*5+5):
-                self.window[i] = Scale(self.master, from_=-500, to=500, length = 100)
-                self.window[i].set(0)
-                self.window[i].grid(row=idx*2+1,column = i-5*idx)
-                
-        for idx in range(0, 5):
-            self.label = Label(self.master, text = \
-            list(seq_of_jointname.keys())[list(seq_of_jointname.values()).index(idx+5)])
-            self.label.grid(row=idx*2, column = 5)
-            
-            for i in range((idx+5)*5, (idx+5)*5+5):
-                self.window[i] = Scale(self.master, from_=-100, to=100, length = 100)
-                self.window[i].set(0)
-                self.window[i].grid(row=idx*2+1,column = i-5*idx+5)
-                
         ### function definition ###
+        
         def show_entry_fields():
             self._contents = self.textbox.get()
             print(self._contents)
             self.textbox.delete(0,END)
-            pub_s.publish(self._contents)
+            pub_s.publish(self._contents)        
+    
+        ### GUI initialization ###
+        self.master = Tk()
+        self.master.title("Ibuki System Configuration ver 2.0")
+        ## First frame ##
+        # 50 slider bars
+        for idx in range(0, 5):
+            # label in row 0,3,6,9,12
+            self.label = Label(self.master, text = \
+            list(seq_of_jointname.keys())[list(seq_of_jointname.values()).index(idx)])
+            self.label.grid(row=idx*3, column = 0, columnspan = 5)            
+            
+            # slier in row 4,7,10,13,16, column in 0,1,2,3,4
+            for i in range(idx*5, idx*5+5):
+                self.window[i] = Scale(self.master, from_=-500, to=500, length = 100)
+                self.window[i].set(0)
+                self.window[i].grid(row=idx*3+1,column = i-5*idx, rowspan =2)
                 
+        ## Middle line##
+        
+        ## Second Frame ##
+        for idx in range(0, 5):
+            # label in row 0,2,4,6,8, column in 6
+            self.label = Label(self.master, text = \
+            list(seq_of_jointname.keys())[list(seq_of_jointname.values()).index(idx+5)])
+            self.label.grid(row=idx*3, column = 6, columnspan = 4)
+            
+            # slier in row 1,3,5,7,9, column in 6,7,8,9,10
+            for i in range((idx+5)*5, (idx+5)*5+5):
+                self.window[i] = Scale(self.master, from_=-100, to=100, length = 100)
+                self.window[i].set(0)
+                self.window[i].grid(row=idx*3+1,column = i-5*idx-19, rowspan=2)
+                
+        ## Third frame ##
+        self.line = Canvas(self.master, width = 5, height = 100, bg = "pink")
+        self.line.grid(row = 5 ,column = 5, rowspan = 11)
         # dialogue texboxes
+        # label in row0, column 11
         self.label = Label(self.master, text = 'speech interface')
-        self.label.grid(row = 1, column = 41)
+        self.label.grid(row = 0, column = 11, columnspan = 4)
         
         self.textbox = Entry(self.master)
         self.textbox.insert(10,"対話内容")
-        self.textbox.grid(row = 1, column = 42)
+        self.textbox.grid(row = 1, column = 11, columnspan = 4)
         
         self.button = Button(self.master, text = "send speech", command = show_entry_fields)
-        self.button.grid(row = 1, column = 43)
-        self.button = Button(self.master, text = "QUIT", command = self.master.quit)
-        self.button.grid(row = 1, column = 44)
+        self.button.grid(row = 2, column = 11, rowspan = 2, columnspan =4)
+        
+        # state canvas
+        # label in row17, column 0
+        self.label = Label(self.master, text = 'state')
+        self.label.grid(row = 3, column =11, columnspan = 4)
+        for idx in range(0, len(self.canvas)):
+            self.canvas[idx] = Canvas(self.master, width = 20, height = 60, bg = "white")
+            self.canvas[idx].grid(row = 4 ,column = idx+11)
+        for idx in range(0, len(self.statetag)):
+            self.label = Label(self.master, text = self.statetag[idx])
+            self.label.grid(row = 5, column = idx+11)
+        # update canvas
+        for idx in range(0, len(self.canvas)):
+            self.canvas[idx].create_rectangle(0,58,20,60, fill = 'red', tag= 'bar')
+                       
+    def state_cb(self, msg):
+        self.state = msg.data
+        
+    def update_state(self):
                 
+        # update canvas
+        for idx in range(0, len(self.canvas)):
+            self.canvas[idx].delete('all')
+            self.canvas[idx].create_rectangle(0,59-self.state[idx]*58,20,60, fill = 'red')
+            
 
 if __name__ == "__main__":
     
@@ -223,6 +263,8 @@ if __name__ == "__main__":
         # do gui
         ibk.master.update_idletasks()
         ibk.master.update()
+
+        ibk.update_state()
         
         # send message
         for index in range(0,50):

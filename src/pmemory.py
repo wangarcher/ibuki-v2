@@ -15,6 +15,7 @@ import rospy
 import rospkg
 
 from silva_beta.msg import Evans
+from std_msgs.msg import Float32MultiArray
 
 import sys, threading
 
@@ -51,7 +52,8 @@ class pose():
         self._dict_serial_name = {}     # default serial-name dict
         self._dict_serial_value = {}    # defaule serial-value dict
         
-        self._default_msg = Evans()     # default msg used to pub
+        self._default_msg = Evans()     # default msg used to 
+        self._state_msg = Float32MultiArray()     # state msg to GUI
         self._pub_msg = Evans()         # memeory msg used to pub
         
         # math operators #
@@ -74,6 +76,7 @@ class pose():
         self.pub = rospy.Publisher('/silva/joint_local/fusion', Evans, queue_size=10) 
         
         self.pub_d = rospy.Publisher('/silva/joint_local/default', Evans, queue_size=10) 
+        self.pub_c = rospy.Publisher('/silva/states', Float32MultiArray, queue_size = 10)
         
         # subscribers
         self.sub_idle = rospy.Subscriber('/silva/joint_local/idle', Evans, self.joint_idle_cb)
@@ -165,7 +168,8 @@ class pose():
         
         # publish desire pose
         while run_event.is_set() and not rospy.is_shutdown():
-            msg.header.stamp = rospy.Time.now()
+            if rate ==2:
+                msg.header.stamp = rospy.Time.now()
             pub.publish(msg)
             
             rate.sleep()
@@ -206,27 +210,16 @@ class pose():
         # designate means
         _sum = sum(self._covs)
         self._temp = self._covs
-        self._covs = [float(self._temp[0])/_sum,\
-                        float(self._temp[1])/_sum,\
-                        float(self._temp[2])/_sum,\
-                        float(self._temp[3])/_sum]
-        # print(self._covs)
-        # take means
-        self._jointmeans = list(self._covs[0]*self.joint_idle+\
-                                self._covs[1]*self.joint_reflex +\
-                                self._covs[2]*self.joint_slave +\
-                                self._covs[3]*self.joint_auto
-        )
+        self._covs = [float(self._temp[0])/_sum, float(self._temp[1])/_sum, float(self._temp[2])/_sum, float(self._temp[3])/_sum]
         
+        # take means
+        self._jointmeans = list(self._covs[0]*self.joint_idle+ self._covs[1]*self.joint_reflex +\
+                                self._covs[2]*self.joint_slave + self._covs[3]*self.joint_auto)
         
         # make message
-        ## TODO: make it a function
-        self._pub_msg.header.stamp = rospy.Time.now()
-        self._pub_msg.seq = 0
-        self._pub_msg.name = 'fusion'
-        self._pub_msg.msgid = 0
-        self._pub_msg.payload = list(np.add(self._default, self._jointmeans))
-        
+        tform.make_message(self._pub_msg, 0, 'fusion', 0, list(np.add(self._default, self._jointmeans)))
+        # update state message
+        self._state_msg.data = self._covs
         
         return None
         
@@ -240,19 +233,17 @@ class pose():
         
         # init the default message
         self.load_default()
-        # print (self._dict_name_value)
-        # print (self._dict_serial_name)
-        # print (self._dict_serial_value)
         
         # signal flag for running threads
         run_event = threading.Event()
         run_event.set()
         
         # thread that sends defaults
-        move_t = threading.Thread(target = self.move_pub_d, args = \
-        (2, self.pub_d, self._default_msg, run_event))
+        move_t = threading.Thread(target = self.move_pub_d, args = (2, self.pub_d, self._default_msg, run_event))
+        move_state = threading.Thread(target = self.move_pub_d, args = (20, self.pub_c, self._state_msg, run_event))
         
         move_t.start()        
+        move_state.start()
         
         while not rospy.is_shutdown():
             

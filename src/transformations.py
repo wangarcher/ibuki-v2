@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import rospy
 _driveunits = 50 # 50 is ibuki driveunits number
 
 """
@@ -102,14 +102,27 @@ def isplit(_rosmessage, _splitsign = 'a'):
         print ([_list_angle[1], _list_angle[2]])
         return [_list_angle[1], _list_angle[2]]
         
+#==============================================================================
+# SET ZEORS
+# 
+# set zero matrix
+#==============================================================================
 def set_zeros(_varname, nums = _driveunits):
     # 47 is ibuki driveunits number
     
     for _idx in range (0, nums):
         _varname.append(0)
 
-# TODO: make a make message function, rospy needed
-def make_message():
-    return None
+#==============================================================================
+# MAKE EVANS MESSAGE
+# 
+# make evans message
+#==============================================================================        
+def make_message(msg, seq, name, msgid, payload):
+    msg.header.stamp = rospy.Time.now()
+    msg.seq = seq
+    msg.name = name
+    msg.msgid = msgid
+    msg.payload = payload      
 
 _version = "2019"
