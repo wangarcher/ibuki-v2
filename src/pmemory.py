@@ -47,6 +47,7 @@ class pose():
         self._default = []              # default value
         self._jointmeans = []           # joint means
         self._initlist = []             # init lists
+        self._payload = []              # final payload
         
         self._dict_name_value = {}      # default name-value dict
         self._dict_serial_name = {}     # default serial-name dict
@@ -59,6 +60,10 @@ class pose():
         # math operators #
         self._covs = [0, 0, 1, 0]       # cov matrix, 1 is slave ctrl
         self._temp = [0, 0, 0, 0]
+        
+        # maximum and minimum
+        self._joint_max = []    # joint maximum
+        self._joint_min = []    # joint minimum
         
         ### global attributes ###
         
@@ -216,12 +221,25 @@ class pose():
         self._jointmeans = list(self._covs[0]*self.joint_idle+ self._covs[1]*self.joint_reflex +\
                                 self._covs[2]*self.joint_slave + self._covs[3]*self.joint_auto)
         
+        self._payload = list(np.add(self._default, self._jointmeans))
+        
+        # compare if the value exceed maxmin
+        self.compare_bounds(self._payload) 
         # make message
-        tform.make_message(self._pub_msg, 0, 'fusion', 0, list(np.add(self._default, self._jointmeans)))
+        tform.make_message(self._pub_msg, 0, 'fusion', 0, self._payload)
         # update state message
         self._state_msg.data = self._covs
         
         return None
+        
+    def compare_bounds(self, value):
+        for i in range (len(value)):
+            if (self._joint_max[i]!=-1 or self._joint_min[i]!=-1):
+                # compare
+                if (value[i]>self._joint_max[i]):
+                    value[i] = self._joint_max[i]
+                elif (value[i]< self._joint_min[i]):
+                    value[i] = self._joint_min[i]
         
         
     def start(self):
@@ -233,6 +251,8 @@ class pose():
         
         # init the default message
         self.load_default()
+        # load max and min
+        self._joint_min, self._joint_max = tform.load_map('limit')
         
         # signal flag for running threads
         run_event = threading.Event()
@@ -249,8 +269,8 @@ class pose():
             
             # do fusion
             self.fusion()
+            
             # publish at >20Hz
-
             self.pub.publish(self._pub_msg)            
             
             loop_rate.sleep()
