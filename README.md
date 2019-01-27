@@ -19,9 +19,13 @@ catkin_make
 ```
 ## How to Use
 ### System Boot
-run
 ```
 roslaunch silva_beta beta.launch
+```
+
+### GUI Usage
+```
+rosrun silva_beta debug_gui.py
 ```
 
 ### Humanoid Simulation Model Mapping 
