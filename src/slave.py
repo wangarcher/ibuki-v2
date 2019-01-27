@@ -12,6 +12,7 @@ import rospy
 from silva_beta.msg import Evans
 
 import os, threading
+import numpy as np
 
 import transformations as tform
 ### environment variables ###
@@ -37,7 +38,7 @@ class poseblock():
         
         # global variables
         self._rel = []
-        self._bias = []
+        self._bias = [[],[],[]]
         self._payload = []
         self._default = []
         
@@ -51,18 +52,22 @@ class poseblock():
         
         # subscribers
         self.sub_int = rospy.Subscriber('/silva/slave_local/intention', Evans, self.intention_cb)
-        self.sub_opt = rospy.Subscriber('/silva/slave_local/operation', Evans, self.operation_cb)
+        self.sub_opt = rospy.Subscriber('/silva/slave_local/operation', Evans, self.operation_cb) 
+        self.sub_dec = rospy.Subscriber('/silva/slave_local/decision', Evans, self.decision_cb)
+        
         self.sub_default = rospy.Subscriber('/silva/joint_local/default', Evans, self.default_cb)
         
         tform.set_zeros(self._default)
         tform.set_zeros(self._rel)
+        for i in range(len(self._bias)):
+            tform.set_zeros(self._bias[i])
 
     ### callback functions ###
     def operation_cb(self, msg):
         # TODO: if there is any HSM message, stop debug gui
 
         
-        self._rel = list(msg.payload)
+        self._bias[0] = list(msg.payload)
 
     def intention_cb(self, msg):
         self._intention = msg
@@ -78,24 +83,24 @@ class poseblock():
             
             # place payload to the cut place
             for _idx in range (0, len(_payload)):
-                self._rel[_cut*5 + _idx] = _payload[_idx]
+                self._bias[0][_cut*5 + _idx] = _payload[_idx]
+                
+    def decision_cb(self, msg):
+        self._bias[2] = list(msg.payload)
         
     def default_cb(self, msg):
         # callback default
         self._default_rec = msg
         self._default = msg.payload
-        
+    
+    ### merge bias ###    
     def set_msg_from_pos(self):
-        # add intentions to default
+        
+        mult_ch = np.array(self._bias)
+        self._rel = mult_ch[0] + mult_ch[1] + mult_ch[2]
+        
         self._payload = self._rel
         
-    def make_message(self):
-        # make message
-        self._pub_msg.header.stamp = rospy.Time.now()
-        self._pub_msg.seq = 3
-        self._pub_msg.name = 'slave'
-        self._pub_msg.msgid = 0
-        self._pub_msg.payload = self._payload
     
     def start(self):
         rospy.loginfo("silva_SLAVE")
@@ -108,7 +113,7 @@ class poseblock():
             self.set_msg_from_pos()
             
             # make the message
-            self.make_message()
+            tform.make_message(self._pub_msg, 3, 'slave', 0, self._payload)
             
             # publish the message
             self.pub.publish(self._pub_msg)
