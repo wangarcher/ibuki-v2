@@ -88,9 +88,9 @@ def mbed_cb(_sock, _sockb, _str, run_event, cls):
         _port = 10022
         _curt = 10200
         _flag = 1
-#    elif dev_name == 'wheel':
-#        _port = 10019
-#        _flag = 2
+    elif dev_name == 'wheel':
+        _port = 10019
+        _flag = 2
         
     while run_event.is_set() and not rospy.is_shutdown():
         if _flag == 1:
@@ -106,8 +106,8 @@ def mbed_cb(_sock, _sockb, _str, run_event, cls):
         if _flag == 2:
             _sock.sendto(_str, (ip(dev_name), _port))
             cls._position, addr_rt =  _sock.recvfrom(1024)
-            cls._payload_p = tform.seperate(cls._position)
-            
+#            cls._payload_p = tform.seperate(cls._position)
+#            
         rate.sleep()
         
 def make_message(msg, msgid, seq, name, payload):

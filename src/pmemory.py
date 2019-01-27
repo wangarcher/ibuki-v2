@@ -205,10 +205,12 @@ class pose():
         self.joint_balance = msg.payload
         
     def joy_cb(self, msg):
-        _axes = msg.axes
-        self._covs = [_axes[4]+1.0, _axes[5]+1.0, _axes[6]+1.0, _axes[7]+1.0]
-        if sum(self._covs) == 0.0:
-            self._covs = [0,0,1,0] # default slave, on demand
+        if msg.header.frame_id == 'main':
+            
+            _axes = msg.axes
+            self._covs = [_axes[4]+1.0, _axes[5]+1.0, _axes[6]+1.0, _axes[7]+1.0]
+            if sum(self._covs) == 0.0:
+                self._covs = [0,0,1,0] # default slave, on demand
         
     def fusion(self):
         

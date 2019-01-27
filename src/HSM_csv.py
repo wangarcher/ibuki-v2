@@ -60,7 +60,7 @@ class csvslave():
         self._pub_msg = Evans()
         
         # publishers
-        self.pub = rospy.Publisher('/silva/slave_local/operation', Evans, queue_size = 10)
+        self.pub = rospy.Publisher('/silva/slave_local/hsm', Evans, queue_size = 10)
         
         # subscribers
     ### calculations ###

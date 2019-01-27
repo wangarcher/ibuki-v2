@@ -38,7 +38,7 @@ class poseblock():
         
         # global variables
         self._rel = []
-        self._bias = [[],[],[]]
+        self._bias = [[],[],[],[],[]]
         self._payload = []
         self._default = []
         
@@ -54,6 +54,8 @@ class poseblock():
         self.sub_int = rospy.Subscriber('/silva/slave_local/intention', Evans, self.intention_cb)
         self.sub_opt = rospy.Subscriber('/silva/slave_local/operation', Evans, self.operation_cb) 
         self.sub_dec = rospy.Subscriber('/silva/slave_local/decision', Evans, self.decision_cb)
+        self.sub_hsm = rospy.Subscriber('/silva/slave_local/hsm', Evans, self.hsm_cb)
+        self.sub_joy = rospy.Subscriber('/silva/slave_local/walking', Evans, self.walking_cb)
         
         self.sub_default = rospy.Subscriber('/silva/joint_local/default', Evans, self.default_cb)
         
@@ -64,18 +66,11 @@ class poseblock():
 
     ### callback functions ###
     def operation_cb(self, msg):
-        # TODO: if there is any HSM message, stop debug gui
-
-        
         self._bias[0] = list(msg.payload)
 
     def intention_cb(self, msg):
         self._intention = msg
-
-        # cut method : from where
         _cut = seq_of_jointname[msg.name]
-        
-        # get the payload
         _payload = msg.payload
         
         # if the msgid = 3 then to relative
@@ -87,6 +82,16 @@ class poseblock():
                 
     def decision_cb(self, msg):
         self._bias[2] = list(msg.payload)
+    def hsm_cb(self, msg):
+        self._bias[3] = list(msg.payload)
+    def walking_cb(self, msg):
+        self._intention = msg
+        _cut = seq_of_jointname[msg.name]
+        _payload = msg.payload
+            
+        # place payload to the cut place
+        for _idx in range (0, len(_payload)):
+            self._bias[4][_cut*5 + _idx] = _payload[_idx]
         
     def default_cb(self, msg):
         # callback default
@@ -97,7 +102,7 @@ class poseblock():
     def set_msg_from_pos(self):
         
         mult_ch = np.array(self._bias)
-        self._rel = mult_ch[0] + mult_ch[1] + mult_ch[2]
+        self._rel = mult_ch[0] + mult_ch[1] + mult_ch[2]+ mult_ch[3]+ mult_ch[4]
         
         self._payload = self._rel
         
